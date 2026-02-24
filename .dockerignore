@@ -1,0 +1,17 @@
+node_modules
+dist
+.git
+*.md
+e2e
+.env
+.env.local
+.env.production
+.cursor
+*.log
+coverage
+.playwright
+playwright-report
+test-results
+test-output.txt
+.DS_Store
+.vscode

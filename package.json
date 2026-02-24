@@ -1,0 +1,29 @@
+{
+  "name": "team-weightroom-tracker",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:server": "node --test server/tests/*.test.js",
+    "start": "node server/server.js",
+    "dev:server": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "supertest": "^7.2.2",
+    "vite": "^6.0.0"
+  }
+}

@@ -1,0 +1,106 @@
+/** Default program returned when a team has no custom program. Matches src/lib/constants.js shape. */
+export const phases = [
+  { id: 1, label: "Phase 1", name: "Foundation", weeks: "Wks 1–4", color: "#2E7D52" },
+  { id: 2, label: "Phase 2", name: "Size", weeks: "Wks 5–10", color: "#1A5276" },
+  { id: 3, label: "Phase 3", name: "Strength", weeks: "Wks 11–16", color: "#6C3483" },
+  { id: 4, label: "Phase 4", name: "Power", weeks: "Wks 17–20", color: "#922B21" },
+  { id: 5, label: "Phase 5", name: "Camp Ready", weeks: "Wks 21–24", color: "#7D6608" },
+];
+
+export const liftTemplates = {
+  1: [
+    { name: "Goblet Squat / Safety Bar Squat", sets: 3, reps: 12, tempo: "3-1-2" },
+    { name: "Romanian Deadlift (RDL)", sets: 3, reps: 10, tempo: "4-1-1" },
+    { name: "Incline DB Press", sets: 3, reps: 12, tempo: "3-1-2" },
+    { name: "Chest-Supported Row", sets: 3, reps: 12, tempo: "2-1-3" },
+    { name: "Landmine Press (Half-Kneeling)", sets: 3, reps: 10, tempo: "2-1-2" },
+    { name: "Single-Leg RDL", sets: 3, reps: 8, tempo: "3-0-1" },
+    { name: "Face Pull", sets: 3, reps: 20, tempo: "2-0-2" },
+    { name: "Pallof Press", sets: 3, reps: 10, tempo: "3-1-1" },
+  ],
+  2: [
+    { name: "Back Squat / Box Squat", sets: 5, reps: 8, tempo: "4-0-1" },
+    { name: "Romanian Deadlift (Barbell)", sets: 4, reps: 8, tempo: "4-1-1" },
+    { name: "Barbell Bench Press", sets: 5, reps: 8, tempo: "3-1-1" },
+    { name: "Weighted Pull-Up / Lat Pulldown", sets: 5, reps: 8, tempo: "3-0-1" },
+    { name: "Walking Lunge (DBs)", sets: 3, reps: 10, tempo: "2-0-1" },
+    { name: "Nordic Hamstring Curl", sets: 4, reps: 6, tempo: "5-0-1" },
+    { name: "DE Box Squat", sets: 8, reps: 2, tempo: "Explode" },
+    { name: "Face Pull", sets: 3, reps: 20, tempo: "2-0-2" },
+  ],
+  3: [
+    { name: "ME Lower — Heavy (rotate weekly)", sets: 5, reps: "1–3RM", tempo: "Max" },
+    { name: "ME Upper — Heavy (rotate weekly)", sets: 5, reps: "1–3RM", tempo: "Max" },
+    { name: "DE Box Squat", sets: 10, reps: 2, tempo: "Explode" },
+    { name: "DE Bench Press", sets: 9, reps: 3, tempo: "Explode" },
+    { name: "Glute Ham Raise", sets: 4, reps: 8, tempo: "4-0-1" },
+    { name: "Power Clean", sets: 5, reps: 3, tempo: "Explode" },
+    { name: "Face Pull", sets: 3, reps: 20, tempo: "2-0-2" },
+    { name: "Ab Wheel Rollout", sets: 4, reps: 10, tempo: "Controlled" },
+  ],
+  4: [
+    { name: "Back Squat (French Contrast — Step 1)", sets: 4, reps: 3, tempo: "Explode" },
+    { name: "Box Jump (French Contrast — Step 2)", sets: 4, reps: 3, tempo: "Max" },
+    { name: "Bulgarian Split Squat (Step 3)", sets: 4, reps: 5, tempo: "Controlled" },
+    { name: "Bounding (French Contrast — Step 4)", sets: 4, reps: 4, tempo: "Max" },
+    { name: "Bench Press (French Contrast — Step 1)", sets: 4, reps: 3, tempo: "Explode" },
+    { name: "Explosive Push-Up (Step 2)", sets: 4, reps: 5, tempo: "Max" },
+    { name: "Pause Squat (3-sec hold at bottom)", sets: 4, reps: 3, tempo: "3-sec pause" },
+    { name: "Cluster Squat (3 singles, 10s rest)", sets: 4, reps: "3 clusters", tempo: "Max" },
+  ],
+  5: [
+    { name: "Back Squat / Box Squat", sets: 4, reps: 3, tempo: "Explode" },
+    { name: "French Contrast Lower (full round)", sets: 3, reps: "Full", tempo: "Max" },
+    { name: "Bench Press", sets: 4, reps: 3, tempo: "Explode" },
+    { name: "French Contrast Upper (full round)", sets: 3, reps: "Full", tempo: "Max" },
+    { name: "DE Box Squat", sets: 8, reps: 2, tempo: "Explode" },
+    { name: "Power Clean (from hang)", sets: 4, reps: 3, tempo: "Explode" },
+    { name: "Glute Ham Raise", sets: 3, reps: 8, tempo: "4-0-1" },
+    { name: "Face Pull + Cressey Shoulder Circuit", sets: 2, reps: 20, tempo: "Controlled" },
+  ],
+};
+
+export const speedTemplates = {
+  1: [
+    { name: "Wall March → Wall Drive", sets: 4, reps: "10 each" },
+    { name: "Falling Start", sets: 8, reps: "1 rep" },
+    { name: "A-March → A-Skip → A-Run", sets: 3, reps: "each" },
+    { name: "Flying 10 (30yd build + 10yd max)", sets: 6, reps: "1 rep" },
+    { name: "40-Yard Sprint (80% — form focus)", sets: 5, reps: "1 rep" },
+    { name: "Pro Agility 5-10-5", sets: 6, reps: "1 rep" },
+  ],
+  2: [
+    { name: "Sled Push (20 yards)", sets: 6, reps: "1 rep" },
+    { name: "Contrast Sprint (sled → free)", sets: 4, reps: "1 pair" },
+    { name: "Flying 20 (40yd build + 20yd max)", sets: 6, reps: "1 rep" },
+    { name: "Broad Jump", sets: 4, reps: "5 reps" },
+    { name: "Box Jump", sets: 4, reps: "5 reps" },
+    { name: "Mirror Drill (partner)", sets: 6, reps: "10 sec" },
+  ],
+  3: [
+    { name: "Flying 30 (50yd build + 30yd max)", sets: 7, reps: "1 rep" },
+    { name: "Timed 40-Yard Dash", sets: 4, reps: "1 rep" },
+    { name: "Timed 5-10-5 Pro Agility", sets: 6, reps: "1 rep" },
+    { name: "Depth Jump", sets: 4, reps: "5 reps" },
+    { name: "Lateral Bound to Stick", sets: 3, reps: "6 each" },
+    { name: "Position-Specific Drill", sets: 10, reps: "1 rep" },
+  ],
+  4: [
+    { name: "Timed 40-Yard Dash", sets: 6, reps: "1 rep" },
+    { name: "Flying 40 (50yd build + 40yd max)", sets: 4, reps: "1 rep" },
+    { name: "Timed 5-10-5", sets: 6, reps: "1 rep" },
+    { name: "Vertical Jump (3 attempts)", sets: 3, reps: "1 attempt" },
+    { name: "Broad Jump (3 attempts)", sets: 3, reps: "1 attempt" },
+    { name: "Depth Jump into Broad Jump", sets: 4, reps: "4 reps" },
+  ],
+  5: [
+    { name: "Timed 40-Yard Dash", sets: 4, reps: "1 rep" },
+    { name: "Flying 20", sets: 4, reps: "1 rep" },
+    { name: "Timed 5-10-5", sets: 4, reps: "1 rep" },
+    { name: "Vertical Jump", sets: 3, reps: "1 attempt" },
+    { name: "Broad Jump", sets: 3, reps: "1 attempt" },
+    { name: "Position-Specific Movement", sets: 8, reps: "1 rep" },
+  ],
+};
+
+export default { phases, liftTemplates, speedTemplates };

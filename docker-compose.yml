@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    container_name: weightroom-app
+    ports:
+      - "${PORT:-3020}:3000"
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/weightroom
+      PORT: 3000
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: weightroom-postgres
+    environment:
+      POSTGRES_DB: weightroom
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
