@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { PHASES, LIFT_TEMPLATES, SPEED_TEMPLATES } from "../../lib/constants.js";
 import { todayStr, fmtDate, calcLoad, makeRosterKey, makeSessionKey } from "../../lib/helpers.js";
-import { isApiAvailable, getCoachDashboard, patchCoachSettings } from "../../storage-api-client.js";
+import { isApiAvailable, getCoachDashboard, patchCoachSettings, getProgram } from "../../storage-api-client.js";
 import { Card, Label } from "../ui/index.js";
 import SessionRow from "./SessionRow.jsx";
 import AthleteDetail from "./AthleteDetail.jsx";
 import GroupSessionEntry from "./GroupSessionEntry.jsx";
 import RosterImport from "./RosterImport.jsx";
+import ProgramEditor from "./ProgramEditor.jsx";
 
 export default function CoachApp({ identity, onReset }) {
   const [view, setView] = useState("dashboard");
@@ -81,6 +82,14 @@ export default function CoachApp({ identity, onReset }) {
   };
 
   useEffect(() => { refresh(); }, []);
+
+  useEffect(() => {
+    if (!isApiAvailable()) return;
+    getProgram(identity.teamCode)
+      .then((data) => setProgram(data))
+      .catch(() => {});
+  }, [identity.teamCode]);
+
   useEffect(() => {
     if (!isApiAvailable()) return;
     if (!filterInitialized.current) {
@@ -211,10 +220,28 @@ export default function CoachApp({ identity, onReset }) {
             fontSize: 14,
             cursor: "pointer",
             fontWeight: "bold",
-            marginBottom: 14,
+            marginBottom: 10,
           }}
         >
           + Start Group Session
+        </button>
+
+        <button
+          onClick={() => setView("program")}
+          style={{
+            width: "100%",
+            padding: "12px",
+            background: "#111",
+            border: "1px solid #333",
+            borderRadius: 8,
+            color: "#aaa",
+            fontFamily: "inherit",
+            fontSize: 13,
+            cursor: "pointer",
+            marginBottom: 14,
+          }}
+        >
+          Edit program
         </button>
 
         <Card style={{ padding: "12px 14px", marginBottom: 14, border: "1px solid #2E7D5233" }}>
@@ -230,9 +257,6 @@ export default function CoachApp({ identity, onReset }) {
               >
                 Import roster
               </button>
-            </div>
-            <div style={{ fontSize: 11, color: "#6BCF7F", fontWeight: "bold" }}>
-              {todayAttendance.length} / {Object.keys(roster).length}
             </div>
           </div>
           {Object.keys(roster).length === 0 && (

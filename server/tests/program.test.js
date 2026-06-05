@@ -44,10 +44,11 @@ describe("PUT /api/program", { skip: !hasDb }, () => {
 
   before(async () => {
     if (!process.env.JWT_SECRET) process.env.JWT_SECRET = "test-secret";
+    if (!process.env.COACH_PIN) process.env.COACH_PIN = "COACH2025";
     teamCode = `PU${Date.now()}`;
     const create = await request(app)
       .post("/api/profile")
-      .send({ name: "Program Coach", teamCode, isCoach: true });
+      .send({ name: "Program Coach", teamCode, isCoach: true, coachPin: "COACH2025" });
     coachToken = create.body.token;
   });
 

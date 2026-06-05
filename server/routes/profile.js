@@ -2,6 +2,7 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import pool from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
+import { validateCoachPin } from "../lib/authHelpers.js";
 
 const router = Router();
 const JWT_EXPIRY = "365d";
@@ -15,7 +16,7 @@ function signToken(payload) {
 /** POST /api/profile - create or update athlete or coach profile. */
 router.post("/", async (req, res) => {
   try {
-    const { name, teamCode, athleteId, position, grade, isCoach, jerseyNumber } = req.body || {};
+    const { name, teamCode, athleteId, position, grade, isCoach, jerseyNumber, coachPin } = req.body || {};
     if (!name || !teamCode) {
       return res.status(400).json({ error: "name and teamCode required" });
     }
@@ -30,6 +31,9 @@ router.post("/", async (req, res) => {
     teamRow = teamRes.rows[0];
 
     if (isCoach) {
+      if (!validateCoachPin(coachPin)) {
+        return res.status(403).json({ error: "Incorrect coach PIN" });
+      }
       let coach = await pool.query(
         "SELECT name FROM users WHERE team_id = $1 AND role = 'coach' LIMIT 1",
         [teamRow.id]

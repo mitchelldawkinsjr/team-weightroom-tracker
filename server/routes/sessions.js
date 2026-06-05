@@ -1,6 +1,7 @@
 import { Router } from "express";
 import pool from "../db.js";
 import { hasWorkoutInfo, countEvidence } from "../lib/attendance.js";
+import { assertAthleteAccess } from "../lib/authHelpers.js";
 
 const router = Router();
 
@@ -62,6 +63,8 @@ router.post("/", async (req, res) => {
     if (!session || !session.teamCode || !session.athleteId || !session.id) {
       return res.status(400).json({ error: "teamCode, athleteId, and session id required" });
     }
+    const accessErr = assertAthleteAccess(req.user, session.teamCode, session.athleteId);
+    if (accessErr) return res.status(403).json({ error: accessErr });
     const { teamId, athleteId: dbAthleteId } = await resolveTeamAndAthlete(session.teamCode, session.athleteId);
     if (!teamId || !dbAthleteId) {
       return res.status(404).json({ error: "Team or athlete not found" });
@@ -141,6 +144,8 @@ router.put("/:id", async (req, res) => {
     if (!session || !session.teamCode || !session.athleteId) {
       return res.status(400).json({ error: "teamCode and athleteId required" });
     }
+    const accessErr = assertAthleteAccess(req.user, session.teamCode, session.athleteId);
+    if (accessErr) return res.status(403).json({ error: accessErr });
     const { teamId, athleteId: dbAthleteId } = await resolveTeamAndAthlete(session.teamCode, session.athleteId);
     if (!teamId || !dbAthleteId) {
       return res.status(404).json({ error: "Team or athlete not found" });
@@ -262,6 +267,8 @@ export async function listAthleteSessions(req, res) {
     const { athleteId } = req.params;
     const teamCode = req.query.teamCode;
     if (!teamCode) return res.status(400).json({ error: "teamCode query required" });
+    const accessErr = assertAthleteAccess(req.user, teamCode, athleteId);
+    if (accessErr) return res.status(403).json({ error: accessErr });
     const { teamId, athleteId: dbAthleteId } = await resolveTeamAndAthlete(teamCode, athleteId);
     if (!teamId || !dbAthleteId) {
       return res.json([]);

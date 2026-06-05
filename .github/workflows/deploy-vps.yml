@@ -1,0 +1,133 @@
+name: Deploy to mitch-cloud
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "src/**"
+      - "server/**"
+      - "e2e/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.js"
+      - "index.html"
+      - "Dockerfile"
+      - "docker-compose.prod.yml"
+      - ".github/workflows/deploy-vps.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Server tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: weightroom
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/weightroom
+      JWT_SECRET: test-secret-ci
+      COACH_PIN: COACH2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm run test:server
+
+  deploy:
+    name: Deploy weightroom to mitch-cloud
+    needs: test
+    runs-on: [self-hosted, Linux, mitch-cloud, team-weightroom]
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.event_name != 'pull_request_target' &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event_name == 'push' &&
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        )
+      ) &&
+      github.event.repository.fork == false &&
+      github.repository == 'mitchelldawkinsjr/team-weightroom-tracker'
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Deploy to mitch-cloud
+        run: |
+          set -euo pipefail
+          deploy_dir=/opt/team-weightroom-tracker
+
+          mkdir -p "$deploy_dir"
+          docker network ls --format '{{.Name}}' | grep -q '^360ws-network$' || docker network create 360ws-network
+
+          rsync -av --delete \
+            --exclude '.git' \
+            --exclude '.env' \
+            --exclude 'node_modules' \
+            --exclude 'playwright-report' \
+            --exclude 'test-results' \
+            --exclude '.DS_Store' \
+            ./ "$deploy_dir/"
+
+          cd "$deploy_dir"
+          docker compose -f docker-compose.prod.yml build
+          docker compose -f docker-compose.prod.yml up -d
+
+          echo "Waiting for weightroom-app to respond..."
+          max_attempts=30
+          attempt=0
+          while [ $attempt -lt $max_attempts ]; do
+            if curl -fsS http://127.0.0.1:3020/ -o /dev/null; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            attempt=$((attempt + 1))
+            echo "Health check attempt $attempt/$max_attempts failed, retrying..."
+            sleep 2
+          done
+
+          echo "Health check failed after $max_attempts attempts."
+          docker compose -f docker-compose.prod.yml logs app
+          exit 1
+
+      - name: Notify Slack on success
+        if: success() && env.SLACK_WEBHOOK != ''
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"✅ team-weightroom-tracker deployed to mitch-cloud (weightroom.360web.cloud + ghfb /weightroom/)"}' \
+            "$SLACK_WEBHOOK"
+
+      - name: Notify Slack on failure
+        if: failure() && env.SLACK_WEBHOOK != ''
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"❌ team-weightroom-tracker deployment to mitch-cloud failed"}' \
+            "$SLACK_WEBHOOK"

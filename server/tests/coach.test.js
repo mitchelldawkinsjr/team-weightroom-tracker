@@ -11,10 +11,11 @@ describe("GET /api/coach/dashboard", { skip: !hasDb }, () => {
 
   before(async () => {
     if (!process.env.JWT_SECRET) process.env.JWT_SECRET = "test-secret";
+    if (!process.env.COACH_PIN) process.env.COACH_PIN = "COACH2025";
     teamCode = `D${Date.now()}`;
     const create = await request(app)
       .post("/api/profile")
-      .send({ name: "Dashboard Coach", teamCode, isCoach: true });
+      .send({ name: "Dashboard Coach", teamCode, isCoach: true, coachPin: "COACH2025" });
     coachToken = create.body.token;
   });
 
@@ -34,6 +35,17 @@ describe("GET /api/coach/dashboard", { skip: !hasDb }, () => {
       .get("/api/coach/dashboard")
       .query({ teamCode })
       .expect(401);
+  });
+
+  it("returns 403 for athlete token", async () => {
+    const athlete = await request(app)
+      .post("/api/profile")
+      .send({ name: "Not Coach", teamCode: `NC${Date.now()}`, position: "WR", grade: "11" });
+    await request(app)
+      .get("/api/coach/dashboard")
+      .query({ teamCode: athlete.body.teamCode })
+      .set("Authorization", `Bearer ${athlete.body.token}`)
+      .expect(403);
   });
 });
 
@@ -77,7 +89,7 @@ describe("POST /api/sessions and attendance", { skip: !hasDb }, () => {
 
     const coach = await request(app)
       .post("/api/profile")
-      .send({ name: "Attendance Coach", teamCode, isCoach: true });
+      .send({ name: "Attendance Coach", teamCode, isCoach: true, coachPin: "COACH2025" });
     const dash = await request(app)
       .get("/api/coach/dashboard")
       .query({ teamCode })

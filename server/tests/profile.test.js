@@ -8,6 +8,7 @@ const hasDb = !!process.env.DATABASE_URL;
 describe("POST /api/profile", { skip: !hasDb }, () => {
   before(() => {
     if (!process.env.JWT_SECRET) process.env.JWT_SECRET = "test-secret";
+    if (!process.env.COACH_PIN) process.env.COACH_PIN = "COACH2025";
   });
 
   it("creates team and athlete, returns identity shape with token", async () => {
@@ -28,13 +29,21 @@ describe("POST /api/profile", { skip: !hasDb }, () => {
     const teamCode = `C${Date.now()}`;
     const res = await request(app)
       .post("/api/profile")
-      .send({ name: "Coach Smith", teamCode, isCoach: true })
+      .send({ name: "Coach Smith", teamCode, isCoach: true, coachPin: "COACH2025" })
       .expect(200);
     assert.strictEqual(res.body.athleteId, "coach");
     assert.strictEqual(res.body.name, "Coach Smith");
     assert.strictEqual(res.body.teamCode, teamCode);
     assert.strictEqual(res.body.isCoach, true);
     assert.ok(res.body.token);
+  });
+
+  it("rejects coach registration with wrong PIN", async () => {
+    const teamCode = `X${Date.now()}`;
+    await request(app)
+      .post("/api/profile")
+      .send({ name: "Bad Coach", teamCode, isCoach: true, coachPin: "wrong" })
+      .expect(403);
   });
 });
 

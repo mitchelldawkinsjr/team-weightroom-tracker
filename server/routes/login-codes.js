@@ -34,6 +34,9 @@ router.post("/", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "athleteId and teamCode required" });
     }
     const code = String(teamCode).trim().toUpperCase();
+    if (req.user.teamCode !== code) {
+      return res.status(403).json({ error: "Can only create login codes for your own team" });
+    }
     const teamRes = await pool.query("SELECT id FROM teams WHERE code = $1", [code]);
     if (teamRes.rows.length === 0) return res.status(404).json({ error: "Team not found" });
     const teamId = teamRes.rows[0].id;

@@ -71,6 +71,7 @@ export default function Setup({ onSave, onBack }) {
         position: "",
         grade: "",
         isCoach: true,
+        coachPin: coachPin.trim(),
       });
       onSave(identity);
     } catch (e) {

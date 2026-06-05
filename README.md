@@ -58,9 +58,17 @@ VITE_API_BASE=http://localhost:3000 npm run dev
 | Variable | Where | Description |
 |---|---|---|
 | `JWT_SECRET` | `.env` | **Required.** Secret for signing JWTs. |
+| `COACH_PIN` | `.env` | Coach registration PIN (server-validated; default `COACH2025`). |
 | `POSTGRES_PASSWORD` | `.env` | Postgres password (default: `postgres`). |
 | `PORT` | `.env` | Host port for the app (default: `3020`). |
-| `VITE_COACH_PIN` | build arg | Override coach PIN at build time. |
+| `VITE_COACH_PIN` | build arg | Client UI PIN hint (must match `COACH_PIN`). |
+
+## GHFB hub integration
+
+- **Standalone:** `https://weightroom.360web.cloud/`
+- **In-app:** `https://ghfb.360web.cloud/weightroom/`
+
+See [docs/deploy-vps.md](docs/deploy-vps.md) for VPS setup, NPM, and GitHub Actions deploy.
 
 ## Scripts
 

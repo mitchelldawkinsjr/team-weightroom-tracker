@@ -1,9 +1,18 @@
+# Production stack (VPS): Node app + Postgres on shared Docker network.
+# Joins `360ws-network` so ghfb-app nginx can proxy /weightroom/ to weightroom-app:3000.
+#
+# Prerequisites: docker network create 360ws-network
+# Host .env: JWT_SECRET, COACH_PIN, POSTGRES_PASSWORD (see .env.example)
+
+name: team-weightroom-tracker
+
 services:
   app:
     build: .
     container_name: weightroom-app
+    restart: unless-stopped
     ports:
-      - "${PORT:-3020}:3000"
+      - "127.0.0.1:${PORT:-3020}:3000"
     environment:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@weightroom-postgres:5432/weightroom
       PORT: 3000
@@ -15,15 +24,21 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 15s
-    restart: unless-stopped
+      start_period: 20s
+    networks:
+      - proxy
+      - internal
+    labels:
+      - "com.360ws.app=weightroom"
+      - "com.360ws.type=docker-app"
 
   postgres:
     image: postgres:16-alpine
     container_name: weightroom-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: weightroom
       POSTGRES_USER: postgres
@@ -32,10 +47,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 2s
+      interval: 5s
       timeout: 5s
       retries: 10
-    restart: unless-stopped
+    networks:
+      - internal
+
+networks:
+  proxy:
+    external: true
+    name: 360ws-network
+  internal:
+    driver: bridge
 
 volumes:
   postgres_data:

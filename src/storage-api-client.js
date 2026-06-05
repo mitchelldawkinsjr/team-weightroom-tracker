@@ -3,8 +3,16 @@
  * Provides: createProfile, getProfile, createSession, updateSession, getAthleteSessions, getCoachDashboard.
  */
 
+/** When served under ghfb hub at /weightroom/, prefix API calls to match nginx proxy. */
+export function getAppRoot() {
+  if (typeof window === "undefined") return "";
+  const path = window.location.pathname || "";
+  if (path === "/weightroom" || path.startsWith("/weightroom/")) return "/weightroom";
+  return "";
+}
+
 export function getApiBase() {
-  if (import.meta.env.PROD) return "";
+  if (import.meta.env.PROD) return getAppRoot();
   const base = import.meta.env.VITE_API_BASE;
   return base && String(base).trim() ? String(base).trim().replace(/\/$/, "") : "";
 }

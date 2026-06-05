@@ -4,8 +4,8 @@ export default function Landing({ onSelect }) {
   return (
     <Shell>
       <div style={{ textAlign: "center", padding: "40px 0 20px" }}>
-        <div style={{ fontSize: 13, color: "#C8A43A", letterSpacing: 3, marginBottom: 8 }}>STATE CHAMPIONSHIP</div>
-        <div style={{ fontSize: 26, fontWeight: "bold", color: "#fff", marginBottom: 4 }}>Training Tracker</div>
+        <div style={{ fontSize: 13, color: "#C8A43A", letterSpacing: 3, marginBottom: 8 }}>GODWIN HEIGHTS FOOTBALL</div>
+        <div style={{ fontSize: 26, fontWeight: "bold", color: "#fff", marginBottom: 4 }}>Weightroom Tracker</div>
         <div style={{ fontSize: 13, color: "#555" }}>Who are you?</div>
       </div>
 

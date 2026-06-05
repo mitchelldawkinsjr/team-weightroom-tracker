@@ -1,17 +1,17 @@
 import { Router } from "express";
 import pool from "../db.js";
+import { requireCoach, requireCoachTeam } from "../middleware/requireCoach.js";
 
 const router = Router();
 
+router.use(requireCoach);
+
 /** GET /api/coach/dashboard?teamCode=...&date=...&phase=... - roster + session feed + attendance */
-router.get("/dashboard", async (req, res) => {
+router.get("/dashboard", requireCoachTeam, async (req, res) => {
   try {
     const teamCode = req.query.teamCode;
     const filterDate = req.query.date || null;
     const filterPhase = req.query.phase != null && req.query.phase !== "" ? parseInt(req.query.phase, 10) : null;
-    if (!teamCode) {
-      return res.status(400).json({ error: "teamCode query required" });
-    }
     const code = String(teamCode).trim().toUpperCase();
 
     const teamRes = await pool.query("SELECT id, COALESCE(show_level_to_athletes, false) AS show_level_to_athletes FROM teams WHERE code = $1", [code]);
@@ -167,11 +167,11 @@ function normalizeLevel(value) {
 }
 
 /** POST /api/coach/roster/import - bulk import roster from CSV rows */
-router.post("/roster/import", async (req, res) => {
+router.post("/roster/import", requireCoachTeam, async (req, res) => {
   try {
     const { teamCode, rows } = req.body || {};
-    if (!teamCode || !Array.isArray(rows)) {
-      return res.status(400).json({ error: "teamCode and rows (array) required" });
+    if (!Array.isArray(rows)) {
+      return res.status(400).json({ error: "rows (array) required" });
     }
     const code = String(teamCode).trim().toUpperCase();
     const teamRes = await pool.query("SELECT id FROM teams WHERE code = $1", [code]);
@@ -232,10 +232,9 @@ router.post("/roster/import", async (req, res) => {
 });
 
 /** PATCH /api/coach/settings - update team setting (e.g. show_level_to_athletes) */
-router.patch("/settings", async (req, res) => {
+router.patch("/settings", requireCoachTeam, async (req, res) => {
   try {
     const { teamCode, showLevelToAthletes } = req.body || {};
-    if (!teamCode) return res.status(400).json({ error: "teamCode required" });
     const code = String(teamCode).trim().toUpperCase();
     await pool.query(
       "UPDATE teams SET show_level_to_athletes = $1 WHERE code = $2",
